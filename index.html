@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
+
+    <title>Text Fade Cycle</title>
+    <style>
+        body {
+            /* font-family: Arial, sans-serif; */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Mountains of Christmas', cursive;
+            height: 100vh;
+            margin: 0;
+            background-color: #fb6f92;
+        }
+
+        #text {
+            font-size: 6vh;
+            opacity: 0;
+            color: #ffe5ec;
+            transition: opacity 1s ease;
+            text-align: center;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #merry-christmas {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: #ffe5ec;
+            display: none;
+            text-align: center;
+        }
+        #merry-christmas2 {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            font-size: 16px;
+            color: black;
+            display: none;
+            text-align: center;
+
+        }
+    </style>
+</head>
+<body>
+    <div id="text-container">
+        <div id="text"></div>
+        <button id="clickbtn" onclick="startCycle()">Start</button>
+    </div>
+    <canvas id="christmasCanvas"></canvas>
+    <div id="merry-christmas">Merry Christmas</div>
+    <div id="merry-christmas2">p/s: duma cây thông 6 qué thông cẻm</div>
+
+    <script>
+        const texts = [
+            "Hế nhô :>",
+            "Thấy buổi tối thấy Vy bị lạnh",
+            "Ở xa Khiêm cũm xót 😢",
+            "nên Khim có món quà mong Vy đỡ lạnh hơn lúc mùa đông nì :>",
+            "ehhehehehehhehe",
+            "Chúc Vy một Giáng Sinh vui vẻ nhaaa 🥳",
+            "Yêu em!",
+        ];
+
+        let currentIndex = 0;
+
+        async function startCycle() {
+            const textElement = document.getElementById('text');
+            const btn = document.getElementById('clickbtn');
+            btn.style.display = 'none';
+
+            function showNextText() {
+                if (currentIndex >= texts.length) {
+                    check();
+                    return; // Stop after all texts
+
+                }
+
+                // Set the text and fade in
+                textElement.textContent = texts[currentIndex];
+                textElement.style.opacity = 1;
+
+                // Wait, then fade out
+                setTimeout(() => {
+                    textElement.style.opacity = 0;
+                    currentIndex++;
+
+                    // Wait for fade-out animation to finish, then show next text
+                    setTimeout(showNextText, 1000);
+                }, 2000); // Display text for 2 seconds
+            }
+
+            currentIndex = 0; // Reset index
+            await showNextText();
+
+            function check() {
+                // Add canvas element to the body
+                const canvas = document.getElementById('christmasCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                // Tree parameters
+                const treeCenterX = canvas.width / 2;
+                const treeBaseY = canvas.height - 100;
+
+                // Snow parameters
+                const snowflakes = [];
+                const maxSnowflakes = 100;
+
+                // Lights parameters
+                const lights = [];
+                const lightColors = ['red', 'yellow', 'blue', 'white'];
+                const lightBlinkSpeed = 500;
+
+                // Initialize snowflakes
+                for (let i = 0; i < maxSnowflakes; i++) {
+                    snowflakes.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        radius: Math.random() * 3 + 1,
+                        speed: Math.random() * 2 + 1,
+                    });
+                }
+
+                // Initialize lights
+                for (let i = 0; i < 30; i++) {
+                    lights.push({
+                        x: treeCenterX - 50 + Math.random() * 100,
+                        y: treeBaseY - 200 + Math.random() * 200,
+                        color: lightColors[Math.floor(Math.random() * lightColors.length)],
+                        isOn: Math.random() < 0.5,
+                    });
+                }
+
+                // Draw tree layers
+                function drawTreeLayer(x, y, width, height, color) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x - width / 2, y + height);
+                    ctx.lineTo(x + width / 2, y + height);
+                    ctx.closePath();
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                }
+
+                // Draw snowflakes
+                function drawSnow() {
+                    ctx.fillStyle = 'white';
+                    snowflakes.forEach((flake) => {
+                        ctx.beginPath();
+                        ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                }
+
+                // Update snowflakes position
+                function updateSnow() {
+                    snowflakes.forEach((flake) => {
+                        flake.y += flake.speed;
+                        if (flake.y > canvas.height) {
+                            flake.y = -flake.radius;
+                            flake.x = Math.random() * canvas.width;
+                        }
+                    });
+                }
+
+                // Draw lights
+                function drawLights() {
+                    lights.forEach((light) => {
+                        if (light.isOn) {
+                            ctx.fillStyle = light.color;
+                            ctx.beginPath();
+                            ctx.arc(light.x, light.y, 5, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    });
+                }
+
+                // Toggle lights
+                function toggleLights() {
+                    lights.forEach((light) => {
+                        light.isOn = !light.isOn;
+                    });
+                }
+
+                // Draw the entire scene
+                function drawScene() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw tree layers
+                    drawTreeLayer(treeCenterX, treeBaseY - 200, 150, 100, '#006400');
+                    drawTreeLayer(treeCenterX, treeBaseY - 150, 120, 100, '#228B22');
+                    drawTreeLayer(treeCenterX, treeBaseY - 100, 90, 100, '#2E8B57');
+
+                    // Draw trunk
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(treeCenterX - 15, treeBaseY - 50, 30, 50);
+
+                    // Draw star
+                    ctx.fillStyle = 'gold';
+                    ctx.beginPath();
+                    ctx.arc(treeCenterX, treeBaseY - 220, 10, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Draw lights
+                    drawLights();
+
+                    // Draw snow
+                    drawSnow();
+                }
+
+                // Animation loop
+                function animate() {
+                    drawScene();
+                    updateSnow();
+                    requestAnimationFrame(animate);
+                }
+
+                // Toggle lights every lightBlinkSpeed milliseconds
+                setInterval(toggleLights, lightBlinkSpeed);
+
+                animate();
+
+                // Adjust canvas size on window resize
+                window.addEventListener('resize', () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                });
+
+                // Show "Merry Christmas" text after a short delay
+                setTimeout(() => {
+                    const merryChristmas = document.getElementById('merry-christmas');
+                    merryChristmas.style.display = 'block';
+                }, 1000);
+                setTimeout(() => {
+                    const merryChristmas2 = document.getElementById('merry-christmas2');
+                    merryChristmas2.style.display = 'block';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
